@@ -12,4 +12,5 @@ object Versions {
   val zioPrelude                    = "1.0.0-RC41"
   val zioHttp                       = "3.5.1"
   val log4jVersion                  = "2.25.1"
+  val sentryVersion                 = "8.21.1"
 }

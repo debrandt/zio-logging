@@ -58,12 +58,14 @@ lazy val root = project
     slf4j2Bridge,
     jpl,
     julBridge,
+    sentryBridge,
     benchmarks,
     examplesCoreJVM,
     examplesCoreJS,
     examplesCoreNative,
     examplesJpl,
     examplesJulBridge,
+    examplesSentryBridge,
     examplesSlf4j2Bridge,
     examplesSlf4jLogback,
     examplesSlf4j2Logback,
@@ -173,6 +175,18 @@ lazy val julBridge = project
     Test / fork := true
   )
 
+lazy val sentryBridge = project
+  .in(file("sentry-bridge"))
+  .dependsOn(coreJVM)
+  .settings(stdSettings(Some("zio-logging-sentry-bridge"), turnCompilerWarningIntoErrors = false))
+  .settings(enableZIO(enableTesting = true))
+  .settings(mimaSettings(failOnProblem = true))
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.sentry" % "sentry" % sentryVersion
+    )
+  )
+
 lazy val jpl = project
   .in(file("jpl"))
   .dependsOn(coreJVM)
@@ -267,6 +281,14 @@ lazy val examplesJulBridge = project
     publish / skip := true
   )
 
+lazy val examplesSentryBridge = project
+  .in(file("examples/sentry-bridge"))
+  .dependsOn(sentryBridge)
+  .settings(stdSettings(Some("zio-logging-examples-sentry-bridge"), turnCompilerWarningIntoErrors = false))
+  .settings(
+    publish / skip := true
+  )
+
 lazy val examplesSlf4j2Bridge = project
   .in(file("examples/slf4j2-bridge"))
   .dependsOn(slf4j2Bridge)
@@ -302,7 +324,7 @@ lazy val compileExamplesJob = Def.setting {
         name = "Compile additional subprojects",
         run = Some(
           "sbt ++${{ matrix.scala }} examplesCoreJVM/compile examplesCoreJS/compile examplesCoreNative/compile examplesJpl/compile examplesJulBridge/compile " +
-            "examplesSlf4j2Bridge/compile examplesSlf4jLogback/compile examplesSlf4j2Logback/compile " +
+            "examplesSentryBridge/compile examplesSlf4j2Bridge/compile examplesSlf4jLogback/compile examplesSlf4j2Logback/compile " +
             "examplesSlf4j2Log4j/compile benchmarks/compile"
         )
       )
